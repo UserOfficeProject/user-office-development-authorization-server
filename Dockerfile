@@ -14,4 +14,4 @@ COPY --chown=node:node . .
 
 EXPOSE 5000
 
-CMD [ "node", "./build/index.js" ]
+CMD [ "node", "./src/index.js" ]
