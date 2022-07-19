@@ -1,4 +1,4 @@
-FROM node:16.14.2-alpine AS build-stage
+FROM node:16.15.0-alpine AS build-stage
 
 RUN mkdir -p /home/node/app/node_modules && chown -R node:node /home/node/app
 
