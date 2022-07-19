@@ -4,7 +4,7 @@ module.exports = {
       client_id: 'useroffice',
       client_secret: 'useroffice',
       grant_types: ['refresh_token', 'authorization_code'],
-      redirect_uris: ['http://127.0.0.1:3000/external-auth'],
+      redirect_uris: ['http://localhost:3000/external-auth'],
     },
   ],
   pkce: {
