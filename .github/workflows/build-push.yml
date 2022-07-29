@@ -49,4 +49,4 @@ jobs:
         with:
           build-args: BUILD_VERSION=${{ github.sha }}
           push: true
-          tags: dmsc/duo-oauth2-provider:${{ steps.extract_branch.outputs.branch }}
+          tags: dmsc/duo-development-authorization-server:${{ steps.extract_branch.outputs.branch }}
