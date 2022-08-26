@@ -11,7 +11,7 @@ const Account = require('./models/Account');
 const configuration = require('./config/config');
 const routes = require('./routes/routes');
 
-const { PORT = 5000, ISSUER = `http://127.0.0.1:${PORT}` } = process.env;
+const { PORT = 5000, ISSUER = `http://localhost:${PORT}` } = process.env;
 configuration.findAccount = Account.findAccount;
 
 const app = express();

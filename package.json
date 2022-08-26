@@ -1,9 +1,9 @@
 {
-  "name": "oidc-provider",
+  "name": "authorization-server",
   "version": "1.0.0",
   "description": "OAuth 2.0 Authorization Server implementation for Node.js with OpenID Connect",
-  "homepage": "https://github.com/UserOfficeProject/user-office-development-oidc-provider",
-  "repository": "https://github.com/UserOfficeProject/user-office-development-oidc-provider",
+  "homepage": "https://github.com/UserOfficeProject/user-office-development-authorization-server",
+  "repository": "https://github.com/UserOfficeProject/user-office-development-authorization-server",
   "license": "LICENSE",
   "author": "SWAP",
   "scripts": {
@@ -21,7 +21,7 @@
     "lodash": "^4.17.21",
     "nanoid": "^3.1.28",
     "oauth2-server": "^3.1.1",
-    "oidc-provider": "^7.11.5",
+    "oidc-provider": "7.10.6",
     "pg": "^8.7.3"
   },
   "devDependencies": {

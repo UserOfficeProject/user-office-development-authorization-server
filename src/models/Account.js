@@ -98,7 +98,7 @@ class Account {
 
     if (!user) {
       // create user now
-      throw new Error('Should create user now');
+      throw new Error('Could not get user');
     }
 
     const openidProfile = toOpenIdConnectProfile(user);

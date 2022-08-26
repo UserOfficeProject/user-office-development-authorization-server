@@ -13,13 +13,13 @@
 </div>
 <% } %>
 <form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
-  <div data-cy="email">
+  <div data-cy="input-email">
     <input required type="text" name="login" placeholder="Enter any login" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
   </div>
 
-  <div data-cy="password">
+  <div data-cy="input-password">
     <input required type="password" name="password" placeholder="and password" <% if (params.login_hint) { %>autofocus="on"<% } %>>
   </div>
 
-  <button type="submit" class="login login-submit">Sign-in</button>
+  <button type="submit" data-cy="submit" class="login login-submit">Sign-in</button>
 </form>
