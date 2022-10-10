@@ -9,7 +9,9 @@
   "scripts": {
     "start": "node ./src/index.js",
     "debug": "node --inspect ./src/index.js",
-    "lint": "eslint . --ext .js --quiet"
+    "lint": "eslint .",
+    "prettier": "prettier .",
+    "build": "rm -rf ./build && tsc"
   },
   "dependencies": {
     "debug": "^4.3.2",
