@@ -14,8 +14,18 @@
 <% } %>
 <form autocomplete="off" action="/interaction/<%= uid %>/login" method="post">
   <div data-cy="input-email">
-    <input required type="text" name="login" placeholder="Enter any login" <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
+    <input required type="text" name="login" 
+    placeholder="Enter any login"
+    onchange="handleEmailChange(event)"
+    list="predefined-credentials-list"
+    <% if (!params.login_hint) { %>autofocus="on"<% } else { %> value="<%= params.login_hint %>" <% } %>>
   </div>
+
+  <datalist id="predefined-credentials-list">
+    <% for (var i = 0; i < predefinedCredentials.length; i++) { %>
+      <option value="<%= predefinedCredentials[i].username %>"></option>
+    <% } %>
+  </datalist>
 
   <div data-cy="input-password">
     <input required type="password" name="password" placeholder="and password" <% if (params.login_hint) { %>autofocus="on"<% } %>>
@@ -23,3 +33,13 @@
 
   <button type="submit" data-cy="submit" class="login login-submit">Sign-in</button>
 </form>
+
+<script>
+  function handleEmailChange(e) {
+    const credentials = JSON.parse('<%- JSON.stringify(predefinedCredentials) %>');
+    const credentialFound = credentials.find(c => c.username === e.target.value);
+    if(credentialFound) {
+      document.querySelector('input[name="password"]').value = credentialFound.pass;
+    }
+  }
+</script>

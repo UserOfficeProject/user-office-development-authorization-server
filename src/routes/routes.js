@@ -7,6 +7,7 @@ const isEmpty = require('lodash/isEmpty');
 const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
 
 const Account = require('../models/Account');
+const CredentialProvider = require('../models/CredentialProvider');
 
 const body = urlencoded({ extended: false });
 
@@ -64,6 +65,7 @@ module.exports = (app, provider) => {
               params: debug(params),
               prompt: debug(prompt),
             },
+            predefinedCredentials: new CredentialProvider().getCredentials(),
           });
         }
         case 'consent': {
