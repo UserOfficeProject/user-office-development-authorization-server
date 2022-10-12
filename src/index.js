@@ -18,6 +18,8 @@ const app = express();
 
 const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
 delete directives['form-action'];
+directives['script-src'] = ["'unsafe-inline'"];
+directives['script-src-attr'] = ["'unsafe-inline'"];
 app.use(helmet({
   contentSecurityPolicy: {
     useDefaults: false,
