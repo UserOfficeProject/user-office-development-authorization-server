@@ -3,7 +3,7 @@ const Knex = require('knex');
 
 const db = Knex({
   client: 'postgresql',
-  connection: process.env.DATABASE_URL,
+  connection: process.env.DB_CONNECTION_STRING,
   pool: {
     afterCreate(connection, done) {
       const defaultTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
