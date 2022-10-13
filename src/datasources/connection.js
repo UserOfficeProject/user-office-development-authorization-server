@@ -11,7 +11,7 @@ const db = Knex({
         `SET timezone = "${process.env.TZ || defaultTimezone}";`,
         (err) => {
           done(err, connection);
-        }
+        },
       );
     },
   },
