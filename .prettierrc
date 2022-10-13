@@ -1,12 +1,12 @@
 {
   "singleQuote": true,
-  "trailingComma": "es5",
+  "trailingComma": "all",
   "endOfLine": "auto",
   "overrides": [
     {
       "files": ["*.yml", "*.yaml"],
       "options": {
-        "singleQuote": false
+        "singleQuote": false,
       }
     }
   ]
