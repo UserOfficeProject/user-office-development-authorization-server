@@ -15,22 +15,21 @@ const body = urlencoded({ extended: false });
 const jsonParser = bodyParser.json();
 
 const keys = new Set();
-const debug = (obj) =>
-  querystring.stringify(
-    Object.entries(obj).reduce((acc, [key, value]) => {
-      keys.add(key);
-      if (isEmpty(value)) return acc;
-      acc[key] = inspect(value, { depth: null });
-      return acc;
-    }, {}),
-    '<br/>',
-    ': ',
-    {
-      encodeURIComponent(value) {
-        return keys.has(value) ? `<strong>${value}</strong>` : value;
-      },
+const debug = (obj) => querystring.stringify(
+  Object.entries(obj).reduce((acc, [key, value]) => {
+    keys.add(key);
+    if (isEmpty(value)) return acc;
+    acc[key] = inspect(value, { depth: null });
+    return acc;
+  }, {}),
+  '<br/>',
+  ': ',
+  {
+    encodeURIComponent(value) {
+      return keys.has(value) ? `<strong>${value}</strong>` : value;
     },
-  );
+  },
+);
 
 module.exports = (app, provider) => {
   const {
@@ -61,8 +60,9 @@ module.exports = (app, provider) => {
 
   app.get('/interaction/:uid', setNoCache, async (req, res, next) => {
     try {
-      const { uid, prompt, params, session } =
-        await provider.interactionDetails(req, res);
+      const {
+        uid, prompt, params, session,
+      } = await provider.interactionDetails(req, res);
 
       const client = await provider.Client.find(params.client_id);
 
