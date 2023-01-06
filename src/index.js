@@ -20,12 +20,14 @@ const directives = helmet.contentSecurityPolicy.getDefaultDirectives();
 delete directives['form-action'];
 directives['script-src'] = ["'unsafe-inline'"];
 directives['script-src-attr'] = ["'unsafe-inline'"];
-app.use(helmet({
-  contentSecurityPolicy: {
-    useDefaults: false,
-    directives,
-  },
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives,
+    },
+  }),
+);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -39,8 +41,11 @@ let server;
   routes(app, provider);
 
   app.use(provider.callback());
+  app.use(express.json());
   server = app.listen(PORT, () => {
-    console.log(`application is listening on port ${PORT}, check its /.well-known/openid-configuration`);
+    console.log(
+      `application is listening on port ${PORT}, check its /.well-known/openid-configuration`,
+    );
   });
 })().catch((err) => {
   if (server && server.listening) server.close();

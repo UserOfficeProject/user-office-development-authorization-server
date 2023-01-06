@@ -5,24 +5,38 @@ const { inspect } = require('util');
 
 const isEmpty = require('lodash/isEmpty');
 const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
+const bodyParser = require('body-parser');
 
-const Account = require('../models/Account');
 const CredentialProvider = require('../models/CredentialProvider');
+const Account = require('../models/Account');
+const config = require('../config/config');
 
 const body = urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
 
 const keys = new Set();
-const debug = (obj) => querystring.stringify(Object.entries(obj).reduce((acc, [key, value]) => {
-  keys.add(key);
-  if (isEmpty(value)) return acc;
-  acc[key] = inspect(value, { depth: null });
-  return acc;
-}, {}), '<br/>', ': ', {
-  encodeURIComponent(value) { return keys.has(value) ? `<strong>${value}</strong>` : value; },
-});
+const debug = (obj) => querystring.stringify(
+  Object.entries(obj).reduce((acc, [key, value]) => {
+    keys.add(key);
+    if (isEmpty(value)) return acc;
+    acc[key] = inspect(value, { depth: null });
+    return acc;
+  }, {}),
+  '<br/>',
+  ': ',
+  {
+    encodeURIComponent(value) {
+      return keys.has(value) ? `<strong>${value}</strong>` : value;
+    },
+  },
+);
 
 module.exports = (app, provider) => {
-  const { constructor: { errors: { SessionNotFound } } } = provider;
+  const {
+    constructor: {
+      errors: { SessionNotFound },
+    },
+  } = provider;
 
   app.use((req, res, next) => {
     const orig = res.render;
@@ -90,71 +104,134 @@ module.exports = (app, provider) => {
     }
   });
 
-  app.post('/interaction/:uid/login', setNoCache, body, async (req, res, next) => {
-    try {
-      const { prompt: { name } } = await provider.interactionDetails(req, res);
-      assert.equal(name, 'login');
-      const account = await Account.findByLogin(req.body.login, req.body.password);
+  app.post(
+    '/interaction/:uid/login',
+    setNoCache,
+    body,
+    async (req, res, next) => {
+      try {
+        const {
+          prompt: { name },
+        } = await provider.interactionDetails(req, res);
+        assert.equal(name, 'login');
+        const account = await Account.findByLogin(
+          req.body.login,
+          req.body.password,
+        );
 
-      const result = {
-        login: {
-          accountId: account.accountId,
-        },
-      };
+        const result = {
+          login: {
+            accountId: account.accountId,
+          },
+        };
 
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
-    } catch (err) {
-      next(err);
-    }
-  });
-
-  app.post('/interaction/:uid/confirm', setNoCache, body, async (req, res, next) => {
-    try {
-      const interactionDetails = await provider.interactionDetails(req, res);
-      const { prompt: { name, details }, params, session: { accountId } } = interactionDetails;
-      assert.equal(name, 'consent');
-
-      let { grantId } = interactionDetails;
-      let grant;
-
-      if (grantId) {
-        // we'll be modifying existing grant in existing session
-        grant = await provider.Grant.find(grantId);
-      } else {
-        // we're establishing a new grant
-        grant = new provider.Grant({
-          accountId,
-          clientId: params.client_id,
+        await provider.interactionFinished(req, res, result, {
+          mergeWithLastSubmission: false,
         });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
+
+  app.post('/get-code', jsonParser, async (req, res, next) => {
+    try {
+      const { login, password } = req.body;
+      const account = await Account.findByLogin(login, password);
+      if (!account) {
+        res.status(401).json({ error: 'Invalid credentials' });
+        return;
       }
 
-      if (details.missingOIDCScope) {
-        grant.addOIDCScope(details.missingOIDCScope.join(' '));
-      }
-      if (details.missingOIDCClaims) {
-        grant.addOIDCClaims(details.missingOIDCClaims);
-      }
-      if (details.missingResourceScopes) {
-        // eslint-disable-next-line no-restricted-syntax
-        for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
-          grant.addResourceScope(indicator, scopes.join(' '));
-        }
-      }
+      // we're establishing a new grant
+      const grant = new provider.Grant({
+        accountId: account.accountId,
+        clientId: config.clients[0].client_id,
+      });
 
-      grantId = await grant.save();
+      const scopes = req.body.scopes?.split(' ') || [];
+      grant.addOIDCScope(scopes.join(' '));
+      grant.addOIDCClaims(['sub', 'name', 'email', 'email_verified']);
 
-      const consent = {};
-      if (!interactionDetails.grantId) {
-        // we don't have to pass grantId to consent, we're just modifying existing one
-        consent.grantId = grantId;
-      }
+      const newGrantId = await grant.save();
 
-      const result = { consent };
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
+      const authCode = new provider.AuthorizationCode({
+        accountId: account.accountId,
+        authTime: new Date().getTime(),
+        grantId: newGrantId,
+        clientId: config.clients[0].client_id,
+        redirectUri: config.clients[0].redirect_uris[0],
+        scope: scopes.join(' '),
+      });
+
+      const code = await authCode.save();
+
+      res.json({ code });
     } catch (err) {
       next(err);
     }
   });
+
+  app.post(
+    '/interaction/:uid/confirm',
+    setNoCache,
+    body,
+    async (req, res, next) => {
+      try {
+        const interactionDetails = await provider.interactionDetails(req, res);
+        const {
+          prompt: { name, details },
+          params,
+          session: { accountId },
+        } = interactionDetails;
+        assert.equal(name, 'consent');
+
+        let { grantId } = interactionDetails;
+        let grant;
+
+        if (grantId) {
+          // we'll be modifying existing grant in existing session
+          grant = await provider.Grant.find(grantId);
+        } else {
+          // we're establishing a new grant
+          grant = new provider.Grant({
+            accountId,
+            clientId: params.client_id,
+          });
+        }
+
+        if (details.missingOIDCScope) {
+          grant.addOIDCScope(details.missingOIDCScope.join(' '));
+        }
+        if (details.missingOIDCClaims) {
+          grant.addOIDCClaims(details.missingOIDCClaims);
+        }
+        if (details.missingResourceScopes) {
+          // eslint-disable-next-line no-restricted-syntax
+          for (const [indicator, scopes] of Object.entries(
+            details.missingResourceScopes,
+          )) {
+            grant.addResourceScope(indicator, scopes.join(' '));
+          }
+        }
+
+        grantId = await grant.save();
+
+        const consent = {};
+        if (!interactionDetails.grantId) {
+          // we don't have to pass grantId to consent, we're just modifying existing one
+          consent.grantId = grantId;
+        }
+
+        const result = { consent };
+        await provider.interactionFinished(req, res, result, {
+          mergeWithLastSubmission: true,
+        });
+      } catch (err) {
+        next(err);
+      }
+    },
+  );
 
   app.get('/interaction/:uid/abort', setNoCache, async (req, res, next) => {
     try {
@@ -162,7 +239,9 @@ module.exports = (app, provider) => {
         error: 'access_denied',
         error_description: 'End-User aborted interaction',
       };
-      await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
+      await provider.interactionFinished(req, res, result, {
+        mergeWithLastSubmission: false,
+      });
     } catch (err) {
       next(err);
     }
