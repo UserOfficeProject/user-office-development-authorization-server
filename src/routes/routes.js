@@ -5,11 +5,14 @@ const { inspect } = require('util');
 
 const isEmpty = require('lodash/isEmpty');
 const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
+const bodyParser = require('body-parser');
 
-const Account = require('../models/Account');
 const CredentialProvider = require('../models/CredentialProvider');
+const Account = require('../models/Account');
+const config = require('../config/config');
 
 const body = urlencoded({ extended: false });
+const jsonParser = bodyParser.json();
 
 const keys = new Set();
 const debug = (obj) =>
@@ -130,6 +133,44 @@ module.exports = (app, provider) => {
       }
     },
   );
+
+  app.post('/get-code', jsonParser, async (req, res, next) => {
+    try {
+      const { login, password } = req.body;
+      const account = await Account.findByLogin(login, password);
+      if (!account) {
+        res.status(401).json({ error: 'Invalid credentials' });
+        return;
+      }
+
+      // we're establishing a new grant
+      const grant = new provider.Grant({
+        accountId: account.accountId,
+        clientId: config.clients[0].client_id,
+      });
+
+      const scopes = req.body.scopes?.split(' ') || [];
+      grant.addOIDCScope(scopes.join(' '));
+      grant.addOIDCClaims(['sub', 'name', 'email', 'email_verified']);
+
+      const newGrantId = await grant.save();
+
+      const authCode = new provider.AuthorizationCode({
+        accountId: account.accountId,
+        authTime: new Date().getTime(),
+        grantId: newGrantId,
+        clientId: config.clients[0].client_id,
+        redirectUri: config.clients[0].redirect_uris[0],
+        scope: scopes.join(' '),
+      });
+
+      const code = await authCode.save();
+
+      res.json({ code });
+    } catch (err) {
+      next(err);
+    }
+  });
 
   app.post(
     '/interaction/:uid/confirm',
