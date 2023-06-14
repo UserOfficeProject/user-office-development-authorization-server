@@ -50,4 +50,5 @@ jobs:
         with:
           build-args: BUILD_VERSION=${{ github.sha }}
           push: true
+          platforms: linux/amd64,linux/arm/v8
           tags: ghcr.io/userofficeproject/user-office-development-authorization-server:${{ steps.extract_branch.outputs.branch }}
