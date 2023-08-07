@@ -1,10 +1,9 @@
-/* eslint-disable no-console, max-len, camelcase, no-unused-vars */
 const { strict: assert } = require('assert');
 const querystring = require('querystring');
 const { inspect } = require('util');
 
 const isEmpty = require('lodash/isEmpty');
-const { urlencoded } = require('express'); // eslint-disable-line import/no-unresolved
+const { urlencoded } = require('express');
 const bodyParser = require('body-parser');
 
 const CredentialProvider = require('../models/CredentialProvider');
