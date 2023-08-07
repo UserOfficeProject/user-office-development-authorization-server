@@ -6,7 +6,7 @@
     {
       "files": ["*.yml", "*.yaml"],
       "options": {
-        "singleQuote": false,
+        "singleQuote": false
       }
     }
   ]
