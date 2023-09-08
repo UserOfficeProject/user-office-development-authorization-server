@@ -2,6 +2,7 @@
 require('dotenv').config();
 
 const path = require('path');
+const url = require('url');
 
 const express = require('express'); // eslint-disable-line import/no-unresolved
 const helmet = require('helmet');
@@ -29,6 +30,23 @@ app.use(
   }),
 );
 
+// If hostname is not equal to the ISSUER then
+// we change the originalUrl which is used by oidc-provider to provide the endpoints.
+const checkOriginalUrl = (req, res, next) => {
+  if (
+    url.format({
+      protocol: req.protocol,
+      host: req.get('host'),
+    }) !== ISSUER
+  ) {
+    req.originalUrl = `${ISSUER}${req.url}`;
+  }
+
+  next();
+};
+
+app.use(checkOriginalUrl);
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
@@ -41,6 +59,7 @@ let server;
   routes(app, provider);
 
   app.use(provider.callback());
+
   app.use(express.json());
   server = app.listen(PORT, () => {
     console.log(
