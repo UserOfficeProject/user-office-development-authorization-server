@@ -48,11 +48,11 @@ const updateExternalAuthSettingsOnFinish = (req, res, next) => {
       setTimeout(() => {
         SettingsDataSource.updateSettings(
           'EXTERNAL_AUTH_LOGIN_URL',
-          'http://localhost:5000/auth?client_id=useroffice&scope=openid%20profile%20email&response_type=code',
+          `${ISSUER}/auth?client_id=useroffice&scope=openid%20profile%20email&response_type=code`,
         );
         SettingsDataSource.updateSettings(
           'EXTERNAL_AUTH_LOGOUT_URL',
-          'http://localhost:5000/session/end?client_id=useroffice',
+          `${ISSUER}/session/end?client_id=useroffice`,
         );
       }, 2000);
     }
