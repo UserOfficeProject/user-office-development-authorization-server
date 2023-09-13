@@ -7,8 +7,6 @@ module.exports = {
       redirect_uris: [
         'http://localhost:3000/external-auth',
         'http://localhost:33000/external-auth',
-        'http://core.localhost:3000/external-auth',
-        'http://scheduler.localhost:3000/external-auth',
       ],
     },
   ],
