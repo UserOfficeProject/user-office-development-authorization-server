@@ -10,6 +10,7 @@ function toOpenIdConnectProfile(record) {
     sub: record.oidc_sub,
     name: record.firstname,
     given_name: record.firstname,
+    gender: record.gender,
     family_name: record.lastname,
     email: record.email,
     email_verified: record.email_verified,
@@ -40,16 +41,21 @@ class Account {
    *   loading some claims from external resources etc. based on this detail
    *   or not return them in id tokens but only userinfo and so on.
    */
-  async claims(use, scope) { // eslint-disable-line no-unused-vars
+  async claims(use, scope) {
+    // eslint-disable-line no-unused-vars
     if (this.profile) {
       return {
         sub: this.accountId, // it is essential to always return a sub claim
+        name: this.profile.name,
+        given_name: this.profile.given_name,
+        family_name: this.profile.family_name,
         email: this.profile.email,
         email_verified: this.profile.email_verified,
-        family_name: this.profile.family_name,
-        given_name: this.profile.given_name,
+        gender: this.profile.gender,
+        birthdate: this.profile.birthdate,
+        phone_number: this.profile.phone_number,
+        address: this.profile.address,
         locale: this.profile.locale,
-        name: this.profile.name,
       };
     }
 
@@ -106,7 +112,8 @@ class Account {
     return new Account(user.oidc_sub, openidProfile);
   }
 
-  static async findAccount(ctx, id, token) { // eslint-disable-line no-unused-vars
+  static async findAccount(ctx, id, token) {
+    // eslint-disable-line no-unused-vars
     // token is a reference to the token used for which a given account is being loaded,
     //   it is undefined in scenarios where account claims are returned from authorization endpoint
     // ctx is the koa request context
