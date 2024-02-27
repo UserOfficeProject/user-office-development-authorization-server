@@ -1,6 +1,7 @@
 const db = require('./connection');
 
 class UserDataSource {
+  // eslint-disable-next-line no-unused-vars
   static async getUserByLogin(email, _password) {
     const institutionColumnName = await this.getInstitutionColumnName();
     return db

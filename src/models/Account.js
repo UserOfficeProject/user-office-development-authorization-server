@@ -41,7 +41,7 @@ class Account {
    *   loading some claims from external resources etc. based on this detail
    *   or not return them in id tokens but only userinfo and so on.
    */
-  // eslint-disable-line no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   async claims(use, scope) {
     if (this.profile) {
       return {
@@ -109,7 +109,7 @@ class Account {
     return new Account(user.oidc_sub, openidProfile);
   }
 
-  // eslint-disable-line no-unused-vars
+  // eslint-disable-next-line no-unused-vars
   static async findAccount(ctx, id, token) {
     // token is a reference to the token used for which a given account is being loaded,
     //   it is undefined in scenarios where account claims are returned from authorization endpoint
