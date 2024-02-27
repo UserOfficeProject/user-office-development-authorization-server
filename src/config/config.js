@@ -45,9 +45,6 @@ module.exports = {
       'updated_at',
       'website',
       'zoneinfo',
-      'institution_ror_id',
-      'institution_name',
-      'institution_country',
     ],
   },
   features: {

@@ -3,7 +3,6 @@ const logins = new Map();
 const { nanoid } = require('nanoid');
 
 const UserDataSource = require('../datasources/UserDataSource');
-const orcidLogin = require('../datasources/OrcidDataSource');
 
 function toOpenIdConnectProfile(record) {
   return {
@@ -41,8 +40,7 @@ class Account {
    *   loading some claims from external resources etc. based on this detail
    *   or not return them in id tokens but only userinfo and so on.
    */
-  // eslint-disable-line no-unused-vars
-  async claims(use, scope) {
+  async claims(use, scope) { // eslint-disable-line no-unused-vars
     if (this.profile) {
       return {
         sub: this.accountId, // it is essential to always return a sub claim
@@ -52,7 +50,6 @@ class Account {
         given_name: this.profile.given_name,
         locale: this.profile.locale,
         name: this.profile.name,
-        ...(orcidLogin[this.profile.sub] ?? {}),
       };
     }
 
@@ -109,8 +106,7 @@ class Account {
     return new Account(user.oidc_sub, openidProfile);
   }
 
-  // eslint-disable-line no-unused-vars
-  static async findAccount(ctx, id, token) {
+  static async findAccount(ctx, id, token) { // eslint-disable-line no-unused-vars
     // token is a reference to the token used for which a given account is being loaded,
     //   it is undefined in scenarios where account claims are returned from authorization endpoint
     // ctx is the koa request context
