@@ -5,7 +5,7 @@ const orcidLogin = {
     institution_name: 'Test Institution',
   },
   'ben.oauthsub': {
-    institution_ror_id: null,
+    institution_ror_id: 'Test_ror_id_2',
     institution_country: 'TestCountry',
     institution_name: 'Test Institution2',
   },
