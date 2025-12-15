@@ -9,11 +9,6 @@ const orcidLogin = {
     institution_country: 'TestCountry',
     institution_name: 'Test Institution2',
   },
-  'david.oauthsub': {
-    institution_ror_id: null,
-    institution_country: 'TestCountry',
-    institution_name: 'Test Institution3',
-  },
 };
 
 module.exports = orcidLogin;
