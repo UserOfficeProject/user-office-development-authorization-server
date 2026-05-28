@@ -7,6 +7,8 @@ module.exports = {
       redirect_uris: [
         'http://localhost:3000/external-auth',
         'http://localhost:33000/external-auth',
+        'http://127.0.0.1:3000/external-auth',
+        'http://127.0.0.1:33000/external-auth',
       ],
     },
   ],
@@ -45,6 +47,9 @@ module.exports = {
       'updated_at',
       'website',
       'zoneinfo',
+      'institution_ror_id',
+      'institution_name',
+      'institution_country',
     ],
   },
   features: {
